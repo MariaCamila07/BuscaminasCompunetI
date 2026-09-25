@@ -1,9 +1,5 @@
 import java.util.Random;
 
-/**
- * Modelo del juego. No sabe nada de red ni de JSON: solo maneja el estado
- * del tablero. Persona A.
- */
 public class Tablero {
     private final int filas;
     private final int columnas;
@@ -60,7 +56,6 @@ public class Tablero {
         return f >= 0 && f < filas && c >= 0 && c < columnas;
     }
 
-    /** Revela una celda. Si es mina, termina el juego en derrota. */
     public synchronized boolean revelar(int f, int c) {
         if (!dentroDelTablero(f, c) || reveladas[f][c] || marcadas[f][c] || juegoTerminado) return false;
         if (minas[f][c]) {
