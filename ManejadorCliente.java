@@ -1,21 +1,15 @@
-import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-/**
- * Un ClientHandler igual al de la sesión pasada, pero en vez de hacer eco
- * mantiene una partida de Buscaminas completa para ese cliente. Persona B.
- */
 public class ManejadorCliente implements Runnable {
     private static final int FILAS = 5;
     private static final int COLUMNAS = 5;
     private static final int MINAS = 4;
 
     private final Socket socket;
-    private final Gson gson = new Gson();
 
     public ManejadorCliente(Socket socket) {
         this.socket = socket;
@@ -32,18 +26,28 @@ public class ManejadorCliente implements Runnable {
 
             String linea;
             while ((linea = in.readLine()) != null) {
-                MensajeCliente msg = gson.fromJson(linea, MensajeCliente.class);
-                if (msg == null || "SALIR".equalsIgnoreCase(msg.tipo)) break;
+                linea = linea.trim();
+                if (linea.equalsIgnoreCase("SALIR")) break;
 
                 if (tablero.isJuegoTerminado()) {
                     enviarEstado(out, tablero, tablero.isGano() ? "GANO" : "PERDIO", "La partida ya terminó");
                     continue;
                 }
 
-                if ("REVELAR".equalsIgnoreCase(msg.tipo)) {
-                    tablero.revelar(msg.fila, msg.columna);
-                } else if ("MARCAR".equalsIgnoreCase(msg.tipo)) {
-                    tablero.marcar(msg.fila, msg.columna);
+                String[] partes = linea.split("\\s+");
+                if (partes.length < 3) {
+                    enviarEstado(out, tablero, "JUGANDO", "Comando inválido, usa: REVELAR fila columna");
+                    continue;
+                }
+
+                String accion = partes[0];
+                int fila = Integer.parseInt(partes[1]);
+                int columna = Integer.parseInt(partes[2]);
+
+                if (accion.equalsIgnoreCase("REVELAR")) {
+                    tablero.revelar(fila, columna);
+                } else if (accion.equalsIgnoreCase("MARCAR")) {
+                    tablero.marcar(fila, columna);
                 }
 
                 String estado = tablero.isJuegoTerminado() ? (tablero.isGano() ? "GANO" : "PERDIO") : "JUGANDO";
@@ -60,7 +64,8 @@ public class ManejadorCliente implements Runnable {
     }
 
     private void enviarEstado(PrintWriter out, Tablero tablero, String estado, String mensaje) {
-        MensajeServidor respuesta = new MensajeServidor(tablero.obtenerVistaJugador(), estado, mensaje);
-        out.println(gson.toJson(respuesta));
+        out.println(tablero.obtenerVistaComoTexto());
+        out.println(estado);
+        out.println(mensaje);
     }
 }

@@ -4,10 +4,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Igual al ConcurrentTCPServer de la sesión pasada: solo acepta conexiones
- * y le pasa cada una a un hilo del pool. Persona B.
- */
+
 public class BuscaminasServer {
     private static final int PUERTO = 9000;
     private static final ExecutorService pool = Executors.newFixedThreadPool(20);
@@ -25,4 +22,3 @@ public class BuscaminasServer {
         }
     }
 }
-

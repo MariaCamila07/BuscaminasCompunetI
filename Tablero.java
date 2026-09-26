@@ -100,22 +100,23 @@ public class Tablero {
     public boolean isJuegoTerminado() { return juegoTerminado; }
     public boolean isGano() { return gano; }
 
-    /** Vista que se le manda al jugador: oculta lo no revelado. */
-    public String[][] obtenerVistaJugador() {
-        String[][] vista = new String[filas][columnas];
+    public String obtenerVistaComoTexto() {
+        StringBuilder sb = new StringBuilder();
         for (int f = 0; f < filas; f++) {
+            if (f > 0) sb.append(";");
             for (int c = 0; c < columnas; c++) {
+                if (c > 0) sb.append(",");
                 if (juegoTerminado && minas[f][c]) {
-                    vista[f][c] = "*";
+                    sb.append("*");
                 } else if (marcadas[f][c]) {
-                    vista[f][c] = "P";
+                    sb.append("P");
                 } else if (!reveladas[f][c]) {
-                    vista[f][c] = "-";
+                    sb.append("-");
                 } else {
-                    vista[f][c] = String.valueOf(adyacentes[f][c]);
+                    sb.append(adyacentes[f][c]);
                 }
             }
         }
-        return vista;
+        return sb.toString();
     }
 }
